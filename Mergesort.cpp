@@ -1,8 +1,6 @@
-//code under construction
 #include <stdio.h>
 #include <stdlib.h>
-
-void mergesort(int arr[], int l,
+void merge(int arr[], int l,
 		int m, int r)
 {
 	int i, j, k;
@@ -42,44 +40,38 @@ void mergesort(int arr[], int l,
 		k++;
 	}
 }
-void mergeSort(int arr[],
-			int l, int r)
+void mergesort(int *arr,int l, int r)
 {
 	if (l < r)
 	{
-		// Same as (l+r)/2, but avoids
-		// overflow for large l and h
 		int m = l + (r - l) / 2;
-
-		// Sort first and second halves
-		mergeSort(arr, l, m);
-		mergeSort(arr, m + 1, r);
-
+		mergesort(arr, l, m);
+		mergesort(arr, m + 1, r);
 		merge(arr, l, m, r);
 	}
 }
-
-// UTILITY FUNCTIONS
-// Function to print an array
 void printArray(int A[], int size)
 {
 	int i;
 	for (i = 0; i < size; i++)
 		printf("%d ", A[i]);
-	printf("\n");
+	        printf("\n");
 }
-
-// Driver code
 int main()
 {
-	int arr[],n;
+	int n,i;
 	printf("How many number do you  need \n");
-	int arr_size = sizeof(arr) / sizeof(arr[0]);
+	scanf("%d",&n);
+	int arr[n];
+	printf("Enter the unordered elements:\n");
+	for(i=0;i<n;i++)
+	{
+		scanf("%d",&arr[i]);
+	}
 	printf("Given array is \n");
-	printArray(arr, arr_size);
-	mergesort(arr, 0, arr_size - 1);
-	printf("\nSorted array is \n");
-	printArray(arr, arr_size);
+	printArray(arr, n);
+	mergesort(arr, 0, n - 1);
+	printf("\nSorted array after merge sor are\n");
+	printArray(arr, n);
 	return 0;
 }
-
