@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct StackNode {
+    char data[100];
+    struct StackNode* next;
+};
+
+struct Stack {
+    struct StackNode* top;
+};
+
+struct StackNode* createStackNode(char* data) {
+    struct StackNode* newNode = (struct StackNode*)malloc(sizeof(struct StackNode));
+    strcpy(newNode->data, data);
+    newNode->next = NULL;
+    return newNode;
+}
+
+int isStackEmpty(struct Stack* stack) {
+    return stack->top == NULL;
+}
+
+void push(struct Stack* stack, char* data) {
+    struct StackNode* newNode = createStackNode(data);
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+char* pop(struct Stack* stack) {
+    if (isStackEmpty(stack)) {
+        printf("Error: Stack is empty.\n");
+        return NULL;
+    }
+    struct StackNode* temp = stack->top;
+    stack->top = stack->top->next;
+    char* data = temp->data;
+    free(temp);
+    return data;
+}
+
+void saveHistoryToFile(struct Stack* stack) {
+    FILE* file = fopen("history.txt", "w");
+    if (file == NULL) {
+        printf("Error: Could not open history file for writing.\n");
+        return;
+    }
+
+    struct StackNode* temp = stack->top;
+    while (temp != NULL) {
+        fprintf(file, "%s\n", temp->data);
+        temp = temp->next;
+    }
+
+    fclose(file);
+    printf("History saved to history.txt\n");
+}
+
+int main() {
+    struct Stack stack;
+    stack.top = NULL;
+
+    while (1) {
+        printf("\n---- Simple Calculator ----\n");
+        printf("Enter an operation (+, -, *, /) or 'q' to quit: ");
+        char operation[100];
+        scanf(" %s", operation);
+
+        if (strcmp(operation, "q") == 0) {
+            printf("Exiting the calculator.\n");
+            break;
+        }
+
+        int num1, num2, result;
+        printf("Enter first number: ");
+        scanf("%d", &num1);
+
+        printf("Enter second number: ");
+        scanf("%d", &num2);
+
+        switch (operation[0]) {
+            case '+':
+                result = num1 + num2;
+                break;
+            case '-':
+                result = num1 - num2;
+                break;
+            case '*':
+                result = num1 * num2;
+                break;
+            case '/':
+                if (num2 != 0) {
+                    result = num1 / num2;
+                } else {
+                    printf("Error: Cannot divide by zero.\n");
+                    continue;
+                }
+                break;
+            default:
+                printf("Error: Invalid operator.\n");
+                continue;
+        }
+
+        printf("Result: %d\n", result);
+
+        // Push the calculation to the stack
+        char operationString[100];
+        sprintf(operationString, "%d %s %d = %d", num1, operation, num2, result);
+        push(&stack, operationString);
+    }
+
+    // Display the calculator history before exiting
+    printf("Calculator History:\n");
+    FILE* historyFile = fopen("history.txt", "w");
+    if (historyFile == NULL) {
+        printf("Error: Could not open history file for writing.\n");
+        return 1; // Exit with an error code
+    }
+    while (!isStackEmpty(&stack)) {
+        char* historyEntry = pop(&stack);
+        printf("%s\n", historyEntry);
+        fprintf(historyFile, "%s\n", historyEntry);
+    }
+    fclose(historyFile);
+
+    return 0;
+}
